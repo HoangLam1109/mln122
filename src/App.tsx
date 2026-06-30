@@ -377,7 +377,7 @@ export default function App() {
 
             <div className="flex items-center gap-2 bg-navy-light px-3 py-1.5 rounded-lg border border-navy-light/80">
               <span className="w-2 h-2 rounded-full bg-teal-accent animate-pulse"></span>
-              <span className="text-[11px] font-mono text-zinc-300">Mô hình: Gemini 3.5-Flash</span>
+              <span className="text-[11px] font-mono text-zinc-300">Mô hình: Gemini 2.5-Flash</span>
             </div>
           </div>
 

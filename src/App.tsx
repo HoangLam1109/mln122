@@ -68,7 +68,18 @@ export default function App() {
         body: JSON.stringify({ prompt: queryToAsk }),
       });
 
-      const data = await response.json();
+      const raw = await response.text();
+      let data: { text?: string; error?: string } = {};
+
+      if (raw) {
+        try {
+          data = JSON.parse(raw);
+        } catch {
+          data = {
+            error: raw.slice(0, 220),
+          };
+        }
+      }
       if (response.ok) {
         setAiResponse(data.text);
       } else {

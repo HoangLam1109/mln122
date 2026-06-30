@@ -41,6 +41,7 @@ function getApiKey() {
 }
 
 async function getAI() {
+  console.log("[api/chat] Initializing GoogleGenAI client.");
   const { GoogleGenAI } = await import("@google/genai");
 
   return new GoogleGenAI({
@@ -107,6 +108,12 @@ function getErrorStatusCode(message: string) {
 }
 
 export async function handleNodeChatRequest(req: IncomingMessage, res: ServerResponse) {
+  console.log("[api/chat] Incoming request.", {
+    method: req.method,
+    url: req.url,
+    hasGeminiApiKey: Boolean(getApiKey()),
+  });
+
   if (req.method !== "POST") {
     res.setHeader("Allow", "POST");
     return sendJson(res, 405, { error: "Method not allowed." });
@@ -114,15 +121,21 @@ export async function handleNodeChatRequest(req: IncomingMessage, res: ServerRes
 
   try {
     const body = await readJsonBody(req as RequestWithOptionalBody);
+    console.log("[api/chat] Request body parsed.", {
+      hasPrompt: Boolean(body.prompt),
+      hasContext: Boolean(body.context),
+    });
     const result = await generateChatResponse(body);
 
     if (result.error) {
+      console.error("[api/chat] Returning handled error.", result);
       return sendJson(res, getErrorStatusCode(result.error), result);
     }
 
+    console.log("[api/chat] Response generated successfully.");
     return sendJson(res, 200, result);
   } catch (error) {
-    console.error("Chat API error:", error);
+    console.error("[api/chat] Unhandled error:", error);
     return sendJson(res, 500, {
       error: `Lỗi hệ thống khi phân tích dữ liệu: ${error instanceof Error ? error.message : String(error)}`,
     });

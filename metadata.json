@@ -1,0 +1,6 @@
+{
+  "name": "Bản đồ Quyền lực Tài chính",
+  "description": "Nền tảng tương tác phân tích cơ cấu sở hữu tập trung, chế độ tham dự, và lý luận kinh tế chính trị tài chính toàn cầu.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

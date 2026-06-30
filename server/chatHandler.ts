@@ -1,4 +1,3 @@
-import { GoogleGenAI } from "@google/genai";
 import type { IncomingMessage, ServerResponse } from "node:http";
 
 type ChatRequestBody = {
@@ -9,6 +8,10 @@ type ChatRequestBody = {
 type JsonResponse = {
   text?: string;
   error?: string;
+};
+
+type RequestWithOptionalBody = IncomingMessage & {
+  body?: unknown;
 };
 
 const systemInstruction = `
@@ -33,9 +36,15 @@ Nhiệm vụ của bạn là giải đáp các câu hỏi của người dùng b
 Hãy trả lời bằng tiếng Việt uyên bác, lập luận chặt chẽ khoa học, sử dụng đúng các thuật ngữ trên, chia đoạn rõ ràng bằng danh sách gạch đầu dòng để người đọc dễ theo dõi, khẳng định đây là phân tích cấu trúc kinh tế thay vì thuyết âm mưu.
 `.trim();
 
-function getAI() {
+function getApiKey() {
+  return process.env.GEMINI_API_KEY;
+}
+
+async function getAI() {
+  const { GoogleGenAI } = await import("@google/genai");
+
   return new GoogleGenAI({
-    apiKey: process.env.GEMINI_API_KEY,
+    apiKey: getApiKey(),
     httpOptions: {
       headers: {
         "User-Agent": "aistudio-build",
@@ -49,11 +58,12 @@ async function generateChatResponse({ prompt, context }: ChatRequestBody): Promi
     return { error: "Yêu cầu cung cấp câu hỏi phân tích." };
   }
 
-  if (!process.env.GEMINI_API_KEY) {
-    return { error: "GEMINI_API_KEY chưa được cấu hình trong môi trường." };
+  if (!getApiKey()) {
+    return { error: "Thiếu biến môi trường GEMINI_API_KEY." };
   }
 
-  const response = await getAI().models.generateContent({
+  const ai = await getAI();
+  const response = await ai.models.generateContent({
     model: "gemini-2.5-flash",
     contents: context
       ? `Bối cảnh dữ liệu đang xem: ${JSON.stringify(context)}\n\nCâu hỏi: ${prompt}`
@@ -67,7 +77,15 @@ async function generateChatResponse({ prompt, context }: ChatRequestBody): Promi
   return { text: response.text };
 }
 
-async function readJsonBody(req: IncomingMessage): Promise<ChatRequestBody> {
+async function readJsonBody(req: RequestWithOptionalBody): Promise<ChatRequestBody> {
+  if (typeof req.body === "string") {
+    return req.body ? JSON.parse(req.body) : {};
+  }
+
+  if (req.body && typeof req.body === "object") {
+    return req.body as ChatRequestBody;
+  }
+
   const chunks: Buffer[] = [];
 
   for await (const chunk of req) {
@@ -84,6 +102,10 @@ function sendJson(res: ServerResponse, statusCode: number, body: JsonResponse) {
   res.end(JSON.stringify(body));
 }
 
+function getErrorStatusCode(message: string) {
+  return message.includes("GEMINI_API_KEY") ? 500 : 400;
+}
+
 export async function handleNodeChatRequest(req: IncomingMessage, res: ServerResponse) {
   if (req.method !== "POST") {
     res.setHeader("Allow", "POST");
@@ -91,12 +113,11 @@ export async function handleNodeChatRequest(req: IncomingMessage, res: ServerRes
   }
 
   try {
-    const body = await readJsonBody(req);
+    const body = await readJsonBody(req as RequestWithOptionalBody);
     const result = await generateChatResponse(body);
 
     if (result.error) {
-      const statusCode = result.error.includes("GEMINI_API_KEY") ? 500 : 400;
-      return sendJson(res, statusCode, result);
+      return sendJson(res, getErrorStatusCode(result.error), result);
     }
 
     return sendJson(res, 200, result);

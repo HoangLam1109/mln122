@@ -17,6 +17,7 @@ import {
 import CorporateMap from "./components/CorporateMap";
 import ParticipationSim from "./components/ParticipationSim";
 import EconomySim from "./components/EconomySim";
+import puppetMasterBanner from "./assets/images/puppet_master_banner_1782798026905.jpg";
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<"corporate" | "participation" | "economy" | "guide">("corporate");
@@ -132,7 +133,7 @@ export default function App() {
           {/* Puppet Master Image Column */}
           <div className="lg:col-span-4 relative h-64 lg:h-auto min-h-[220px] rounded-xl overflow-hidden border border-zinc-200">
             <img 
-              src="/src/assets/images/puppet_master_banner_1782798026905.jpg" 
+              src={puppetMasterBanner} 
               alt="Mô hình rối dây tài chính" 
               className="absolute inset-0 w-full h-full object-cover"
               referrerPolicy="no-referrer"

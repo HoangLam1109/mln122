@@ -22,7 +22,7 @@ const parts = [
   },
   {
     id: 3,
-    title: "Biểu hiện 2: Xã hội hóa Chi phí, Tư nhân hóa Lợi nhuận",
+    title: "Biểu hiện 2: Vai trò sở hữu nhà nước trong việc giảm chi phí",
     icon: <TrendingUp className="w-6 h-6 text-teal-accent" />,
     content: "Nhà nước gánh vác các khoản đầu tư rủi ro, thu hồi vốn chậm (giao thông, năng lượng, R&D).",
     detail: "Từ bệ đỡ hạ tầng giá rẻ này, các tập đoàn độc quyền nhảy vào khai thác thương mại để tối đa hóa lợi nhuận mà không phải chịu rủi ro ban đầu.",

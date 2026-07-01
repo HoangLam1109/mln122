@@ -12,15 +12,17 @@ import {
   X, 
   AlertCircle,
   TrendingDown,
-  ExternalLink
+  ExternalLink,
+  Presentation
 } from "lucide-react";
 import CorporateMap from "./components/CorporateMap";
+import StateMonopolySlide from "./components/StateMonopolySlide";
 import ParticipationSim from "./components/ParticipationSim";
 import EconomySim from "./components/EconomySim";
 import puppetMasterBanner from "./assets/images/puppet_master_banner_1782798026905.jpg";
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState<"corporate" | "participation" | "economy" | "guide">("corporate");
+  const [activeTab, setActiveTab] = useState<"corporate" | "participation" | "economy" | "guide" | "presentation">("corporate");
   const [prompt, setPrompt] = useState<string>("");
   const [aiResponse, setAiResponse] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
@@ -250,6 +252,17 @@ export default function App() {
             <BookOpen className="w-4 h-4" />
             Cẩm nang Lý luận Mác-Lênin
           </button>
+          <button
+            onClick={() => setActiveTab("presentation")}
+            className={`px-5 py-3 text-xs md:text-sm font-medium border-b-2 transition-all duration-200 flex items-center gap-2 whitespace-nowrap ${
+              activeTab === "presentation"
+                ? "border-coral text-navy font-semibold"
+                : "border-transparent text-zinc-500 hover:text-navy"
+            }`}
+          >
+            <Presentation className="w-4 h-4" />
+            Độc quyền Nhà nước
+          </button>
         </div>
 
         {/* Dynamic Interactive Component View */}
@@ -264,6 +277,10 @@ export default function App() {
 
           {activeTab === "economy" && (
             <EconomySim />
+          )}
+
+          {activeTab === "presentation" && (
+            <StateMonopolySlide />
           )}
 
           {activeTab === "guide" && (
